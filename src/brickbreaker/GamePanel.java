@@ -15,6 +15,7 @@ public class GamePanel extends JPanel {
 // ENTITIES
 	Ball ball;
 	Paddle paddle;
+	Map map;
 
 // DEFAULT SERIAL ID
 	private static final long serialVersionUID = 1L;
@@ -42,7 +43,7 @@ public class GamePanel extends JPanel {
 		mouseListener = new MyMouseMotionListener();
 		addMouseMotionListener(mouseListener);
 		playing = true;
-
+		map = new Map(6, 10);
 		try {
 			Thread.sleep(2000); // PROGRAM DELAYS 2000MS BEFORE PLAYING
 		} catch (Exception e) {
@@ -79,6 +80,7 @@ public class GamePanel extends JPanel {
 
 		ball.draw(g);
 		paddle.draw(g);
+		map.draw(g);
 	}
 
 	public void paint(Graphics g) {
