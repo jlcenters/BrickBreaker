@@ -2,6 +2,7 @@ package brickbreaker;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 
 public class Paddle {
 // FIELDS
@@ -30,5 +31,10 @@ public class Paddle {
 
 	public void mouseMoved(int mouseXPos) {
 		x = mouseXPos; // SETS X OF MOUSE TO X OF PADDLE
+	}
+
+// HITBOX CHECK FOR COLLISION
+	public Rectangle getRect() {
+		return new Rectangle((int) x, YPOS, width, height);
 	}
 }

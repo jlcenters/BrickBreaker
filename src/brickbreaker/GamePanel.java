@@ -72,6 +72,7 @@ public class GamePanel extends JPanel {
 
 	public void update() {
 		ball.update();
+		checkCollisions();
 	}
 
 	public void draw() {
@@ -97,7 +98,6 @@ public class GamePanel extends JPanel {
 
 		@Override
 		public void mouseDragged(MouseEvent arg0) {
-			// TODO Auto-generated method stub
 
 		}
 
@@ -106,6 +106,38 @@ public class GamePanel extends JPanel {
 			paddle.mouseMoved(arg0.getX());
 		}
 
+	}
+
+	public void checkCollisions() {
+		Rectangle ballRect = ball.getRect();
+		Rectangle paddleRect = paddle.getRect();
+
+		// PADDLE COLLISION
+		if (ballRect.intersects(paddleRect)) {
+			ball.setDY(-ball.getDY()); // IF BALL INTERSECTS PADDLE, BALL DIRECTION IS INVERSED
+		}
+
+		// MAP COLLISION
+		A: for (int row = 0; row < map.getMapGrid().length; row++) { // CAN LABEL LOOPS TO SPECIFY WHAT TO BREAK OUT OF
+																		// (WILL BREAK OUT OF BOTH LOOPS INSTEAD OF
+																		// YOUNGEST)
+			for (int col = 0; col < map.getMapGrid()[0].length; col++) {
+				if (map.getMapGrid()[row][col] > 0) { // CHECKS ONLY IF VALUE IS NOT 0 (CHOSEN VOID VALUE)
+					int brickX = col * map.getBrickWidth() + map.HOR_PAD;
+					int brickY = row * map.getBrickHeight() + map.VERT_PAD;
+					int brickWidth = map.getBrickWidth();
+					int brickHeight = map.getBrickHeight();
+
+					Rectangle brickRect = new Rectangle(brickX, brickY, brickWidth, brickHeight);
+
+					if (ballRect.intersects(brickRect)) {
+						map.setBrick(row, col, 0);
+						ball.setDY(-ball.getDY());
+						break A;
+					}
+				}
+			}
+		}
 	}
 
 }

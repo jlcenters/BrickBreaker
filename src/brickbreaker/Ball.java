@@ -43,4 +43,18 @@ public class Ball {
 		g.drawOval((int) x, (int) y, ballSize, ballSize);
 
 	}
+
+	public Rectangle getRect() {
+		return new Rectangle((int) x, (int) y, ballSize, ballSize);
+	}
+
+// MANIPULATING THE Y DIRECTION FOR COLLISION
+	public void setDY(double theDY) {
+		dy = theDY;
+	}
+
+	public double getDY() {
+		return dy;
+	}
+
 }
