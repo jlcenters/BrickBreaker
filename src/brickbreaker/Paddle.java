@@ -31,10 +31,18 @@ public class Paddle {
 
 	public void mouseMoved(int mouseXPos) {
 		x = mouseXPos; // SETS X OF MOUSE TO X OF PADDLE
+
+		if (x > GameMain.WIDTH - width) {
+			x = GameMain.WIDTH - width;
+		}
 	}
 
 // HITBOX CHECK FOR COLLISION
 	public Rectangle getRect() {
 		return new Rectangle((int) x, YPOS, width, height);
+	}
+
+	public int getWidth() {
+		return width;
 	}
 }

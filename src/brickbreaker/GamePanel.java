@@ -11,11 +11,13 @@ public class GamePanel extends JPanel {
 	private BufferedImage image;
 	private Graphics2D g;
 	private MyMouseMotionListener mouseListener;
+	private int mouseX;
 
 // ENTITIES
 	Ball ball;
 	Paddle paddle;
 	Map map;
+	Hud hud;
 
 // DEFAULT SERIAL ID
 	private static final long serialVersionUID = 1L;
@@ -27,10 +29,16 @@ public class GamePanel extends JPanel {
 	}
 
 	public void init() {
+		ball = new Ball();
+		paddle = new Paddle();
+		mouseListener = new MyMouseMotionListener();
+		addMouseMotionListener(mouseListener);
 		playing = true;
-
+		map = new Map(6, 10);
+		hud = new Hud();
+		mouseX = 0;
+		playing = true;
 		image = new BufferedImage(GameMain.WIDTH, GameMain.HEIGHT, BufferedImage.TYPE_INT_RGB);
-
 		g = (Graphics2D) image.getGraphics(); // TELLING G TO DRAW ON IMAGE IN AN UPDATED FORMAT
 
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON); // REMOVES PIXELATION
@@ -38,14 +46,8 @@ public class GamePanel extends JPanel {
 
 	public void play() {
 		// GAME LOOP
-		ball = new Ball();
-		paddle = new Paddle();
-		mouseListener = new MyMouseMotionListener();
-		addMouseMotionListener(mouseListener);
-		playing = true;
-		map = new Map(6, 10);
 		try {
-			Thread.sleep(2000); // PROGRAM DELAYS 2000MS BEFORE PLAYING
+			Thread.sleep(5000); // PROGRAM DELAYS 2000MS BEFORE PLAYING
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -63,7 +65,7 @@ public class GamePanel extends JPanel {
 
 			// WAIT
 			try {
-				Thread.sleep(7); // DELAYS LOOP TO SLOW BALL DOWN
+				Thread.sleep(5); // DELAYS LOOP TO SLOW BALL DOWN
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -82,6 +84,68 @@ public class GamePanel extends JPanel {
 		ball.draw(g);
 		paddle.draw(g);
 		map.draw(g);
+		hud.draw(g);
+
+		if (map.isWin()) {
+			drawWin();
+			playing = false;
+		}
+		if (ball.isLoss()) {
+			drawLose();
+			playing = false;
+
+		}
+	}
+
+	public void drawWin() {
+		g.setColor(Color.CYAN);
+		g.setFont(new Font("Courier New", Font.BOLD, 50));
+		g.drawString("YOU WIN!", 200, 200);
+	}
+
+	public void drawLose() {
+		g.setColor(Color.RED);
+		g.setFont(new Font("Courier New", Font.BOLD, 50));
+		g.drawString("You Lose :(", 200, 200);
+	}
+
+	public void checkCollisions() {
+		Rectangle ballRect = ball.getRect();
+		Rectangle paddleRect = paddle.getRect();
+
+		// PADDLE COLLISION
+		if (ballRect.intersects(paddleRect)) {
+			ball.setDY(-ball.getDY()); // IF BALL INTERSECTS PADDLE, BALL DIRECTION IS INVERSED
+
+			// ADJUST MOVEMENT TO BE MORE EXTREME IF LANDS ON LEFT OR RIGHT QUARTERS
+			if (ball.getX() < mouseX + paddle.getWidth() / 4) { // LEFT
+				ball.setDX(-ball.getdX() - 1);
+			}
+			if (ball.getX() < mouseX + paddle.getWidth() && ball.getX() > mouseX + paddle.getWidth() / 4) { // RIGHT
+				ball.setDX(-ball.getdX() + 1);
+			}
+		}
+
+		// MAP COLLISION
+		A: for (int row = 0; row < map.getMapGrid().length; row++) { // CAN LABEL LOOPS TO SPECIFY WHAT TO BREAK OUT OF
+			for (int col = 0; col < map.getMapGrid()[0].length; col++) {
+				if (map.getMapGrid()[row][col] > 0) { // CHECKS ONLY IF VALUE IS NOT 0 (CHOSEN VOID VALUE)
+					int brickX = col * map.getBrickWidth() + map.HOR_PAD;
+					int brickY = row * map.getBrickHeight() + map.VERT_PAD;
+					int brickWidth = map.getBrickWidth();
+					int brickHeight = map.getBrickHeight();
+
+					Rectangle brickRect = new Rectangle(brickX, brickY, brickWidth, brickHeight);
+
+					if (ballRect.intersects(brickRect)) { // IF BALL INTERSECTS BRICK, BRICK IS REMOVED AND SCORE += 50
+						map.brickHit(row, col);
+						ball.setDY(-ball.getDY());
+						hud.addScore(50);
+						break A; // (WILL BREAK OUT OF BOTH LOOPS INSTEAD OF YOUNGEST)
+					}
+				}
+			}
+		}
 	}
 
 	public void paint(Graphics g) {
@@ -103,41 +167,10 @@ public class GamePanel extends JPanel {
 
 		@Override
 		public void mouseMoved(MouseEvent arg0) {
+			mouseX = arg0.getX();
 			paddle.mouseMoved(arg0.getX());
 		}
 
-	}
-
-	public void checkCollisions() {
-		Rectangle ballRect = ball.getRect();
-		Rectangle paddleRect = paddle.getRect();
-
-		// PADDLE COLLISION
-		if (ballRect.intersects(paddleRect)) {
-			ball.setDY(-ball.getDY()); // IF BALL INTERSECTS PADDLE, BALL DIRECTION IS INVERSED
-		}
-
-		// MAP COLLISION
-		A: for (int row = 0; row < map.getMapGrid().length; row++) { // CAN LABEL LOOPS TO SPECIFY WHAT TO BREAK OUT OF
-																		// (WILL BREAK OUT OF BOTH LOOPS INSTEAD OF
-																		// YOUNGEST)
-			for (int col = 0; col < map.getMapGrid()[0].length; col++) {
-				if (map.getMapGrid()[row][col] > 0) { // CHECKS ONLY IF VALUE IS NOT 0 (CHOSEN VOID VALUE)
-					int brickX = col * map.getBrickWidth() + map.HOR_PAD;
-					int brickY = row * map.getBrickHeight() + map.VERT_PAD;
-					int brickWidth = map.getBrickWidth();
-					int brickHeight = map.getBrickHeight();
-
-					Rectangle brickRect = new Rectangle(brickX, brickY, brickWidth, brickHeight);
-
-					if (ballRect.intersects(brickRect)) {
-						map.setBrick(row, col, 0);
-						ball.setDY(-ball.getDY());
-						break A;
-					}
-				}
-			}
-		}
 	}
 
 }
