@@ -3,6 +3,8 @@ package brickbreaker;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+
 import javax.swing.JPanel;
 
 public class GamePanel extends JPanel {
@@ -14,10 +16,11 @@ public class GamePanel extends JPanel {
 	private int mouseX;
 
 // ENTITIES
-	Ball ball;
-	Paddle paddle;
-	Map map;
-	Hud hud;
+	private Ball ball;
+	private Paddle paddle;
+	private Map map;
+	private Hud hud;
+	private ArrayList<PowerUp> powerUps;
 
 // DEFAULT SERIAL ID
 	private static final long serialVersionUID = 1L;
@@ -30,15 +33,17 @@ public class GamePanel extends JPanel {
 
 	public void init() {
 		ball = new Ball();
-		paddle = new Paddle();
+		paddle = new Paddle(100, 20);
 		mouseListener = new MyMouseMotionListener();
 		addMouseMotionListener(mouseListener);
 		playing = true;
-		map = new Map(6, 10);
+		map = new Map(4, 8);
 		hud = new Hud();
 		mouseX = 0;
 		playing = true;
 		image = new BufferedImage(GameMain.WIDTH, GameMain.HEIGHT, BufferedImage.TYPE_INT_RGB);
+		powerUps = new ArrayList<>();
+
 		g = (Graphics2D) image.getGraphics(); // TELLING G TO DRAW ON IMAGE IN AN UPDATED FORMAT
 
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON); // REMOVES PIXELATION
@@ -47,7 +52,7 @@ public class GamePanel extends JPanel {
 	public void play() {
 		// GAME LOOP
 		try {
-			Thread.sleep(5000); // PROGRAM DELAYS 2000MS BEFORE PLAYING
+			Thread.sleep(4000); // PROGRAM DELAYS 2000MS BEFORE PLAYING
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -65,7 +70,7 @@ public class GamePanel extends JPanel {
 
 			// WAIT
 			try {
-				Thread.sleep(5); // DELAYS LOOP TO SLOW BALL DOWN
+				Thread.sleep(12); // DELAYS LOOP TO SLOW BALL DOWN
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -74,7 +79,12 @@ public class GamePanel extends JPanel {
 
 	public void update() {
 		ball.update();
+		paddle.update();
 		checkCollisions();
+
+		for (PowerUp pu : powerUps) {
+			pu.update();
+		}
 	}
 
 	public void draw() {
@@ -85,6 +95,8 @@ public class GamePanel extends JPanel {
 		paddle.draw(g);
 		map.draw(g);
 		hud.draw(g);
+
+		drawPowerUps();
 
 		if (map.isWin()) {
 			drawWin();
@@ -109,9 +121,27 @@ public class GamePanel extends JPanel {
 		g.drawString("You Lose :(", 200, 200);
 	}
 
+	public void drawPowerUps() {
+		for (PowerUp pu : powerUps) {
+			pu.draw(g);
+		}
+	}
+
 	public void checkCollisions() {
 		Rectangle ballRect = ball.getRect();
 		Rectangle paddleRect = paddle.getRect();
+
+		// POWERUPS
+		for (int i = 0; i < powerUps.size(); i++) {
+			Rectangle puRect = powerUps.get(i).getRect();
+
+			if (paddleRect.intersects(puRect)) {
+				if ((powerUps.get(i).getType() == PowerUp.WIDE_PADDLE) && !(powerUps.get(i).isUsed())) {
+					paddle.setWidth(paddle.getWidth() * 2);
+					powerUps.get(i).setUsed(true);
+				}
+			}
+		}
 
 		// PADDLE COLLISION
 		if (ballRect.intersects(paddleRect)) {
@@ -138,6 +168,16 @@ public class GamePanel extends JPanel {
 					Rectangle brickRect = new Rectangle(brickX, brickY, brickWidth, brickHeight);
 
 					if (ballRect.intersects(brickRect)) { // IF BALL INTERSECTS BRICK, BRICK IS REMOVED AND SCORE += 50
+
+						if (map.getMapGrid()[row][col] > 3) {
+							powerUps.add(
+									new PowerUp(brickX, brickY, map.getMapGrid()[row][col], brickWidth, brickHeight));
+
+							map.setBrick(row, col, 0);
+						} else {
+							map.brickHit(row, col);
+						}
+
 						map.brickHit(row, col);
 						ball.setDY(-ball.getDY());
 						hud.addScore(50);

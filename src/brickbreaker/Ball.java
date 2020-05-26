@@ -4,7 +4,7 @@ import java.awt.*;
 
 public class Ball {
 	private double x, y, dx, dy;
-	private int ballSize = 8;
+	private int ballSize = 15;
 
 	public Ball() {
 		x = 200;
