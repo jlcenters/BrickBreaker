@@ -27,7 +27,7 @@ public class Paddle {
 
 // UPDATE
 	public void update() {
-		if ((System.nanoTime() - widthTimer) / 1000 > 4000000 && altWidth) {
+		if ((System.nanoTime() - widthTimer) / 1000 > 9000000 && altWidth) {
 			width = startWidth;
 			altWidth = false;
 		}
@@ -39,9 +39,9 @@ public class Paddle {
 		g.fillRect((int) x, YPOS, width, height);
 
 		if (altWidth) {
-			g.setColor(Color.WHITE);
+			g.setColor(Color.GREEN);
 			g.setFont(new Font("Courier New", Font.BOLD, 18));
-			g.drawString("Shrinking In: " + ((4 - (System.nanoTime() - widthTimer) / 1000000000)), (int) x, YPOS + 18);
+			g.drawString("Shrinking In: " + ((9 - (System.nanoTime() - widthTimer) / 1000000000)), (int) x, YPOS + 18);
 		}
 	}
 

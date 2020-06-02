@@ -32,7 +32,7 @@ public class GamePanel extends JPanel {
 	}
 
 	public void init() {
-		ball = new Ball();
+		ball = new Ball(15, 12);
 		paddle = new Paddle(100, 20);
 		mouseListener = new MyMouseMotionListener();
 		addMouseMotionListener(mouseListener);
@@ -70,7 +70,7 @@ public class GamePanel extends JPanel {
 
 			// WAIT
 			try {
-				Thread.sleep(12); // DELAYS LOOP TO SLOW BALL DOWN
+				Thread.sleep(ball.getSpeed()); // DELAYS LOOP TO SLOW BALL DOWN
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -105,7 +105,6 @@ public class GamePanel extends JPanel {
 		if (ball.isLoss()) {
 			drawLose();
 			playing = false;
-
 		}
 	}
 
@@ -140,6 +139,10 @@ public class GamePanel extends JPanel {
 					paddle.setWidth(paddle.getWidth() * 2);
 					powerUps.get(i).setUsed(true);
 				}
+				if ((powerUps.get(i).getType() == PowerUp.FAST_BALL) && !(powerUps.get(i).isUsed())) {
+					ball.setSpeed(ball.getSpeed() / 2);
+					powerUps.get(i).setUsed(true);
+				}
 			}
 		}
 
@@ -151,7 +154,7 @@ public class GamePanel extends JPanel {
 			if (ball.getX() < mouseX + paddle.getWidth() / 4) { // LEFT
 				ball.setDX(-ball.getdX() - 1);
 			}
-			if (ball.getX() < mouseX + paddle.getWidth() && ball.getX() > mouseX + paddle.getWidth() / 4) { // RIGHT
+			if (ball.getX() > mouseX + paddle.getWidth() * 3 / 4 && ball.getX() > mouseX + paddle.getWidth() / 4) { // RIGHT
 				ball.setDX(-ball.getdX() + 1);
 			}
 		}
@@ -177,7 +180,6 @@ public class GamePanel extends JPanel {
 						} else {
 							map.brickHit(row, col);
 						}
-
 						map.brickHit(row, col);
 						ball.setDY(-ball.getDY());
 						hud.addScore(50);

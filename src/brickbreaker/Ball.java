@@ -4,9 +4,15 @@ import java.awt.*;
 
 public class Ball {
 	private double x, y, dx, dy;
-	private int ballSize = 15;
+	private int ballSize, startSpeed, speed;
+	private long speedTimer;
+	private boolean altSpeed;
 
-	public Ball() {
+	public Ball(int ballSize, int speed) {
+		altSpeed = false;
+		this.ballSize = ballSize;
+		this.speed = speed;
+		startSpeed = speed;
 		x = 200;
 		y = 200;
 		dx = 1;
@@ -17,6 +23,11 @@ public class Ball {
 
 	public void update() {
 		setPosition();
+
+		if ((System.nanoTime() - speedTimer) / 1000 > 9000000 && altSpeed) {
+			speed = startSpeed;
+			altSpeed = false;
+		}
 	}
 
 	public void setPosition() {
@@ -42,6 +53,11 @@ public class Ball {
 		g.setStroke(new BasicStroke(4)); // LINE THICKNESS
 		g.drawOval((int) x, (int) y, ballSize, ballSize);
 
+		if (altSpeed) {
+			g.setColor(Color.RED);
+			g.setFont(new Font("Courier New", Font.BOLD, 18));
+			g.drawString("Slowing In: " + ((9 - (System.nanoTime() - speedTimer) / 1000000000)), 20, 20);
+		}
 	}
 
 	public Rectangle getRect() {
@@ -78,6 +94,46 @@ public class Ball {
 
 	public double getX() {
 		return x;
+	}
+
+	public int getStartSpeed() {
+		return startSpeed;
+	}
+
+	public void setStartSpeed(int startSpeed) {
+		this.startSpeed = startSpeed;
+	}
+
+	public int getSpeed() {
+		return speed;
+	}
+
+	public void setSpeed(int speed) {
+		this.speed = speed;
+	}
+
+	public long getSpeedTimer() {
+		return speedTimer;
+	}
+
+	public void setSpeedTimer() {
+		speedTimer = System.nanoTime();
+	}
+
+	public boolean isAltSpeed() {
+		return altSpeed;
+	}
+
+	public void setAltSpeed(boolean altSpeed) {
+		this.altSpeed = altSpeed;
+	}
+
+	public int getBallSize() {
+		return ballSize;
+	}
+
+	public void setBallSize(int ballSize) {
+		this.ballSize = ballSize;
 	}
 
 }
