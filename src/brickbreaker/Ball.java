@@ -56,7 +56,7 @@ public class Ball {
 		if (altSpeed) {
 			g.setColor(Color.RED);
 			g.setFont(new Font("Courier New", Font.BOLD, 18));
-			g.drawString("Slowing In: " + ((9 - (System.nanoTime() - speedTimer) / 1000000000)), 20, 20);
+			g.drawString("Slowing In: " + ((9 - (System.nanoTime() - speedTimer) / 1000000000)), 20, 35);
 		}
 	}
 
@@ -110,6 +110,8 @@ public class Ball {
 
 	public void setSpeed(int speed) {
 		this.speed = speed;
+		altSpeed = true;
+		setSpeedTimer();
 	}
 
 	public long getSpeedTimer() {
@@ -117,7 +119,7 @@ public class Ball {
 	}
 
 	public void setSpeedTimer() {
-		speedTimer = System.nanoTime();
+		speedTimer = System.nanoTime(); // billionth of a second
 	}
 
 	public boolean isAltSpeed() {
